@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Collection Receipt Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 15px;
+      line-height: 1.6;
+    }
+    .words {
+      margin-top: 10px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <h3>Collection Receipt Calculator</h3>
+
+  <label>Total Sales:</label>
+  <input type="number" id="totalSales" placeholder="Enter total sales">
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="result">
+    <p>Vatable Sale = <span id="vatable">-</span></p>
+    <p>Add: VAT = <span id="vat">-</span></p>
+    <p>Total Sales = <span id="total">-</span></p>
+    <p>Less: EWT = <span id="ewt">-</span></p>
+    <p><strong>Final CR = <span id="final">-</span></strong></p>
+    <p class="words">In words: <span id="finalWords">-</span></p>
+  </div>
+
+  <script>
+    function calculate() {
+      let totalSale = parseFloat(document.getElementById("totalSales").value);
+      if (isNaN(totalSale)) {
+        alert("Please enter a number");
+        return;
+      }
+
+      let vatable = totalSale / 1.12;
+      let vat = totalSale - vatable;
+      let ewt = vatable * 0.01;
+      let finalCR = totalSale - ewt;
+
+      document.getElementById("vatable").textContent = vatable.toFixed(2);
+      document.getElementById("vat").textContent = vat.toFixed(2);
+      document.getElementById("total").textContent = totalSale.toFixed(2);
+      document.getElementById("ewt").textContent = ewt.toFixed(2);
+      document.getElementById("final").textContent = finalCR.toFixed(2);
+      document.getElementById("finalWords").textContent = numberToWords(finalCR);
+    }
+
+    function numberToWords(amount) {
+      const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+      const teens = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+      const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+
+      function convert(num) {
+        if (num < 10) return ones[num];
+        if (num < 20) return teens[num-10];
+        if (num < 100) return tens[Math.floor(num/10)] + " " + ones[num%10];
+        if (num < 1000) return ones[Math.floor(num/100)] + " Hundred " + convert(num%100);
+        if (num < 1000000) return convert(Math.floor(num/1000)) + " Thousand " + convert(num%1000);
+        return convert(Math.floor(num/1000000)) + " Million " + convert(num%1000000);
+      }
+
+      let pesos = Math.floor(amount);
+      let cents = Math.round((amount - pesos) * 100);
+
+      let words = convert(pesos) + " Pesos";
+      if (cents > 0) {
+        words += " and " + String(cents).padStart(2, "0") + "/100 Only";
+      }
+
+      return words;
+    }
+  </script>
+
+</body>
+</html>
