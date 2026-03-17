@@ -137,13 +137,11 @@
       let pesos = Math.floor(amount);
       let cents = Math.round((amount - pesos) * 100);
 
-      let words = convert(pesos).trim() + " Pesos";
-
       if (cents > 0) {
         words += " and " + String(cents).padStart(2, "0") + "/100";
       }
 
-      words += " Only";
+      words += " Pesos Only";
 
       return words;
     }
