@@ -119,38 +119,32 @@
       document.getElementById("finalWords").textContent = numberToWords(finalCR);
     }
 
-    function numberToWords(amount) {
+     function numberToWords(amount) {
       const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
       const teens = ["Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
       const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
-
+    
       function convert(num) {
-        if (num === 0) return "";
+        if (num === 0) return "Zero";
         if (num < 10) return ones[num];
         if (num < 20) return teens[num - 10];
-        if (num < 100) return tens[Math.floor(num / 10)] + " " + ones[num % 10];
-        if (num < 1000) return ones[Math.floor(num / 100)] + " Hundred " + convert(num % 100);
-        if (num < 1000000) return convert(Math.floor(num / 1000)) + " Thousand " + convert(num % 1000);
-        return convert(Math.floor(num / 1000000)) + " Million " + convert(num % 1000000);
+        if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 ? " " + ones[num % 10] : "");
+        if (num < 1000) return ones[Math.floor(num / 100)] + " Hundred" + (num % 100 ? " " + convert(num % 100) : "");
+        if (num < 1000000) return convert(Math.floor(num / 1000)) + " Thousand" + (num % 1000 ? " " + convert(num % 1000) : "");
+        return convert(Math.floor(num / 1000000)) + " Million" + (num % 1000000 ? " " + convert(num % 1000000) : "");
       }
-
+    
       let pesos = Math.floor(amount);
       let cents = Math.round((amount - pesos) * 100);
-
-      let words = "";
-      
-      if (pesos === 0 && cents > 0) {
-        words = "Zero and " + String(cents).padStart(2, "0") + "/100";
-      } else {
-        words = convert(pesos).trim();
-      
-        if (cents > 0) {
-          words += " and " + String(cents).padStart(2, "0") + "/100";
-        }
+    
+      let words = convert(pesos);
+    
+      if (cents > 0) {
+        words += " and " + String(cents).padStart(2, "0") + "/100";
       }
-      
+    
       words += " Pesos Only";
-      
+    
       return words;
     }
   </script>
