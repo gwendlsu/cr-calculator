@@ -5,45 +5,29 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      max-width: 420px;
+      max-width: 400px;
       margin: 20px auto;
     }
-
-    input, select, button {
+    input {
       width: 100%;
       padding: 8px;
       margin: 10px 0;
       font-size: 16px;
     }
-
     button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
       cursor: pointer;
     }
-
     .result {
       margin-top: 15px;
-      line-height: 1.8;
-      border-top: 1px solid #000;
-      padding-top: 10px;
+      line-height: 1.6;
+      font-family: monospace; /* align numbers nicely */
     }
-
-    .result p {
-      display: flex;
-      justify-content: space-between;
-      font-family: monospace;
-      margin: 4px 0;
-    }
-
-    .result span {
-      min-width: 140px;
-      text-align: right;
-      display: inline-block;
-    }
-
     .words {
       margin-top: 10px;
       font-style: italic;
-      font-family: Arial;
     }
   </style>
 </head>
@@ -52,72 +36,42 @@
   <h3>Collection Receipt Calculator</h3>
 
   <label>Total Sales:</label>
-  <input type="text" id="totalSales" placeholder="₱ Enter total sales">
-
-  <label>EWT Rate:</label>
-  <select id="ewtRate">
-    <option value="0.01">1%</option>
-    <option value="0.02">2%</option>
-  </select>
+  <input type="number" id="totalSales" placeholder="Enter total sales" min="0">
 
   <button onclick="calculate()">Calculate</button>
 
   <div class="result">
-    <p>Vatable Sale <span id="vatable">-</span></p>
-    <p>Add: VAT <span id="vat">-</span></p>
-    <p>Total Sales <span id="total">-</span></p>
-    <p>Less: EWT <span id="ewt">-</span></p>
-    <p><strong>Final CR <span id="final">-</span></strong></p>
+    <p>Vatable Sale = <span id="vatable">-</span></p>
+    <p>Add: VAT = <span id="vat">-</span></p>
+    <p>Total Sales = <span id="total">-</span></p>
+    <p>Less: EWT = <span id="ewt">-</span></p>
+    <p><strong>Final CR = <span id="final">-</span></strong></p>
     <p class="words">In words: <span id="finalWords">-</span></p>
   </div>
 
   <script>
-    // Auto-format input with commas
-    document.getElementById("totalSales").addEventListener("input", function(e) {
-      let value = e.target.value.replace(/,/g, "").trim();
-
-      if (!isNaN(value) && value !== "") {
-        e.target.value = Number(value).toLocaleString("en-PH");
-      } else {
-        e.target.value = "";
-      }
-    });
-
-    // Enter key support
-    document.getElementById("totalSales").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
-        calculate();
-      }
-    });
-
-    function formatPeso(value) {
-      return value.toLocaleString("en-PH", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
+    function formatNumber(num) {
+      // Round to 2 decimals and add commas
+      return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
     function calculate() {
-      let rawValue = document.getElementById("totalSales").value.replace(/,/g, "").trim();
-      let totalSale = parseFloat(rawValue);
-
-      if (isNaN(totalSale) || totalSale <= 0) {
-        alert("Please enter a valid amount");
+      let totalSale = parseFloat(document.getElementById("totalSales").value);
+      if (isNaN(totalSale) || totalSale < 0) {
+        alert("Please enter a valid number greater than or equal to 0");
         return;
       }
 
-      let rate = parseFloat(document.getElementById("ewtRate").value);
-
       let vatable = totalSale / 1.12;
       let vat = totalSale - vatable;
-      let ewt = vatable * rate;
+      let ewt = vatable * 0.01;
       let finalCR = totalSale - ewt;
 
-      document.getElementById("vatable").textContent = formatPeso(vatable);
-      document.getElementById("vat").textContent = formatPeso(vat);
-      document.getElementById("total").textContent = formatPeso(totalSale);
-      document.getElementById("ewt").textContent = formatPeso(ewt);
-      document.getElementById("final").textContent = formatPeso(finalCR);
+      document.getElementById("vatable").textContent = formatNumber(vatable);
+      document.getElementById("vat").textContent = formatNumber(vat);
+      document.getElementById("total").textContent = formatNumber(totalSale);
+      document.getElementById("ewt").textContent = formatNumber(ewt);
+      document.getElementById("final").textContent = formatNumber(finalCR);
       document.getElementById("finalWords").textContent = numberToWords(finalCR);
     }
 
@@ -127,27 +81,24 @@
       const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
 
       function convert(num) {
-        if (num === 0) return "Zero";
         if (num < 10) return ones[num];
-        if (num < 20) return teens[num - 10];
-        if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 ? " " + ones[num % 10] : "");
-        if (num < 1000) return ones[Math.floor(num / 100)] + " Hundred" + (num % 100 ? " " + convert(num % 100) : "");
-        if (num < 1000000) return convert(Math.floor(num / 1000)) + " Thousand" + (num % 1000 ? " " + convert(num % 1000) : "");
-        return convert(Math.floor(num / 1000000)) + " Million" + (num % 1000000 ? " " + convert(num % 1000000) : "");
+        if (num < 20) return teens[num-10];
+        if (num < 100) return tens[Math.floor(num/10)] + (num%10 ? "-" + ones[num%10] : "");
+        if (num < 1000) return ones[Math.floor(num/100)] + " Hundred" + (num%100 ? " " + convert(num%100) : "");
+        if (num < 1000000) return convert(Math.floor(num/1000)) + " Thousand" + (num%1000 ? " " + convert(num%1000) : "");
+        return convert(Math.floor(num/1000000)) + " Million" + (num%1000000 ? " " + convert(num%1000000) : "");
       }
 
       let pesos = Math.floor(amount);
       let cents = Math.round((amount - pesos) * 100);
 
       let words = convert(pesos);
-
       if (cents > 0) {
-        words += " and " + String(cents).padStart(2, "0") + "/100";
+        words += " and " + cents + "/100";
       }
+      words += " pesos only";
 
-      words += " Pesos Only";
-
-      return words;
+      return words.charAt(0).toUpperCase() + words.slice(1); // capitalize first letter
     }
   </script>
 
